@@ -17,7 +17,20 @@
     "url": "https://github.com/JonathanBEugenio/clean-auth-api/issues"
   },
   "homepage": "https://github.com/JonathanBEugenio/clean-auth-api#readme",
+  "lint-staged": {
+    "*.js": [
+      "standard --fix",
+      "git add"
+    ]
+  },
+  "husky": {
+      "hooks": {
+        "pre-commit": "lint-staged"
+      }
+  },
   "devDependencies": {
+    "husky": "^4.3.7",
+    "lint-staged": "^10.5.3",
     "standard": "^16.0.3"
   }
 }
