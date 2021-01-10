@@ -4,7 +4,8 @@
   "description": "Node authentication api using clean architecture principles.",
   "main": "index.js",
   "scripts": {
-    "test": "jest --no-cache --watchAll"
+    "test": "jest --no-cache --watchAll",
+    "test:staged": "jest"
   },
   "repository": {
     "type": "git",
@@ -25,6 +26,7 @@
   "lint-staged": {
     "*.js": [
       "standard --fix",
+      "npm run test:staged",
       "git add"
     ]
   },
