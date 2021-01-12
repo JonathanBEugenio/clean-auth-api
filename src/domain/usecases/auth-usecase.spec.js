@@ -4,12 +4,14 @@ const { MissingParamError } = require('../../utils/errors')
 const makeSut = () => {
   const loadUseByEmailRepository = makeLoadUseByEmailRepository()
   const encrypter = makeEncrypter()
-  const sut = new AuthUseCase(loadUseByEmailRepository, encrypter)
+  const tokenGenerator = makeTokenGenerator()
+  const sut = new AuthUseCase(loadUseByEmailRepository, encrypter, tokenGenerator)
 
   return {
     sut,
     loadUseByEmailRepository,
-    encrypter
+    encrypter,
+    tokenGenerator
   }
 }
 
@@ -23,6 +25,7 @@ const makeLoadUseByEmailRepository = () => {
 
   const loadUseByEmailRepository = new LoadUseByEmailRepositorySpy()
   loadUseByEmailRepository.user = {
+    id: 'any_id',
     password: 'hashedPassword'
   }
 
@@ -42,6 +45,19 @@ const makeEncrypter = () => {
   encrypter.isValid = true
 
   return encrypter
+}
+
+const makeTokenGenerator = () => {
+  class TokenGenerator {
+    async generate (userId) {
+      this.userId = userId
+      return this.accessToken
+    }
+  }
+
+  const tokenGenerator = new TokenGenerator()
+  tokenGenerator.accessToken = 'any_token'
+  return tokenGenerator
 }
 
 describe('Auth UseCase', () => {
@@ -94,5 +110,11 @@ describe('Auth UseCase', () => {
     await sut.auth('valid_email@email.com', 'any_password')
     expect(encrypter.password).toBe('any_password')
     expect(encrypter.hashedPassword).toBe(loadUseByEmailRepository.user.password)
+  })
+
+  test('Should call TokenGenerator with correct params', async () => {
+    const { sut, loadUseByEmailRepository, tokenGenerator } = makeSut()
+    await sut.auth('valid_email@email.com', 'valid_password')
+    expect(tokenGenerator.userId).toBe(loadUseByEmailRepository.user.id)
   })
 })
